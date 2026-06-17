@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  looking-glass:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: looking-glass-app
+    ports:
+      - "5000:5000"
+    env_file:
+      - backend/.env
+    cap_add:
+      - NET_ADMIN  # Required for local diagnostic raw socket ping & mtr fallback commands in container
+    restart: unless-stopped

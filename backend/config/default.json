@@ -1,0 +1,50 @@
+{
+  "speedtest": {
+    "servers": [
+      {
+        "id": "my",
+        "name": "Malaysia",
+        "label": "MY",
+        "host": "http://localhost:5000",
+        "latencyIp": "1.1.1.1"
+      },
+      {
+        "id": "sg",
+        "name": "Singapore",
+        "label": "SG",
+        "host": "http://localhost:5000",
+        "latencyIp": "8.8.8.8"
+      },
+      {
+        "id": "hk",
+        "name": "Hong Kong",
+        "label": "HK",
+        "host": "http://localhost:5000",
+        "latencyIp": "8.8.4.4"
+      }
+    ]
+  },
+  "localCommands": {
+    "win32": {
+      "ping": "ping -n 5 {target}",
+      "traceroute": "tracert {target}",
+      "mtr": "pathping {target}",
+      "bgp": "echo BGP query is only supported via router execution.",
+      "ping6": "ping -6 -n 5 {target}"
+    },
+    "posix": {
+      "ping": "ping -c 5 {target}",
+      "traceroute": "traceroute {target}",
+      "mtr": "mtr --report --report-cycles=5 {target}",
+      "bgp": "echo BGP query is only supported via router execution.",
+      "ping6": "ping6 -c 5 {target}"
+    }
+  },
+  "routerCommands": {
+    "ping": "ping {target}",
+    "traceroute": "traceroute {target}",
+    "mtr": "bash mtr -r -c 5 {target}",
+    "bgp": "show ip bgp {target}",
+    "ping6": "ping ipv6 {target}"
+  }
+}
