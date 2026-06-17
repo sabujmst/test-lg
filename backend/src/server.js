@@ -59,7 +59,7 @@ app.use(express.json());
 const apiGlobalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 150,
-  skip: (req) => req.path.startsWith('/api/speedtest'),
+  skip: (req) => req.originalUrl.startsWith('/api/speedtest'),
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests. Please try again later.' }
