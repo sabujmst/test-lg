@@ -55,10 +55,11 @@ app.use(cors({
 
 app.use(express.json());
 
-// Global API rate limiter (150 requests per 15 minutes per IP)
+// Global API rate limiter (150 requests per 15 minutes per IP, excluding speedtests)
 const apiGlobalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 150,
+  skip: (req) => req.path.startsWith('/api/speedtest'),
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests. Please try again later.' }
@@ -73,20 +74,9 @@ const heavyLimiter = rateLimit({
   message: { error: 'Rate limit exceeded. Please wait a minute before running another test.' }
 });
 
-// Dedicated speedtest rate limiter allowing large bursts for fast chunk transfers (500 requests per minute)
-const speedtestLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000,
-  max: 500,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Speedtest rate limit exceeded. Please try again in a minute.' }
-});
-
 // Apply rate limiters
 app.use('/api/', apiGlobalLimiter);
 app.use('/api/diagnose', heavyLimiter);
-app.use('/api/speedtest/download', speedtestLimiter);
-app.use('/api/speedtest/upload', speedtestLimiter);
 
 // Load speedtest config configuration safely
 let config = {};
