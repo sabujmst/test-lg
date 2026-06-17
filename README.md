@@ -50,12 +50,11 @@ Looking-Glass/
 ## ⚙️ Configuration
 
 ### 1. Environment Variables (`backend/.env`)
-Create `backend/.env` (an example template is provided in `backend/.env.example`):
+Create `backend/.env` (an example template is provided in `backend/.env.example`). These credentials are used by the backend to establish the SSH session specifically for BGP commands:
 ```env
 PORT=5000
-EXECUTION_SOURCE=local # Set to 'router' for Arista SSH or 'local' for local server commands
 
-# Arista EOS Credentials (required if EXECUTION_SOURCE=router)
+# Arista EOS Credentials (required for BGP queries)
 ROUTER_HOST=192.168.1.1
 ROUTER_PORT=22
 ROUTER_USER=admin
@@ -66,8 +65,8 @@ ROUTER_KEY_PATH= # Optional path to private key file for key-based authenticatio
 ### 2. Location & Custom Commands Config (`backend/config/default.json`)
 Modify [default.json](file:///d:/OneDrive%20-%20Link3%20Technologies%20Ltd/Desktop/Looking-Glass/backend/config/default.json) to configure your server test nodes and commands:
 * `speedtest.servers`: Array of servers with names, hosts, and latencies.
-* `localCommands`: Fallback commands used if `EXECUTION_SOURCE=local` (Win32 and Linux/POSIX supported).
-* `routerCommands`: SSH command lines executed on the Arista EOS router (e.g., `ping {target}`, `show ip bgp {target}`).
+* `localCommands`: Commands executed locally on the server (Win32 and Linux/POSIX supported) for `ping`, `traceroute`, `mtr`, and `ping6`.
+* `routerCommands`: SSH commands executed on the Arista EOS router for BGP (e.g., `show ip bgp {target}`).
 
 ---
 
