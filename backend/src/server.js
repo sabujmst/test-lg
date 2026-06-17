@@ -64,7 +64,7 @@ const apiGlobalLimiter = rateLimit({
   message: { error: 'Too many requests. Please try again later.' }
 });
 
-// Strict rate limiter for resource-heavy / speedtest endpoints (15 runs per minute per IP)
+// Strict rate limiter for resource-heavy diagnostic execution (15 runs per minute per IP)
 const heavyLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
   max: 15,
@@ -73,11 +73,20 @@ const heavyLimiter = rateLimit({
   message: { error: 'Rate limit exceeded. Please wait a minute before running another test.' }
 });
 
+// Dedicated speedtest rate limiter allowing large bursts for fast chunk transfers (500 requests per minute)
+const speedtestLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 500,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Speedtest rate limit exceeded. Please try again in a minute.' }
+});
+
 // Apply rate limiters
 app.use('/api/', apiGlobalLimiter);
 app.use('/api/diagnose', heavyLimiter);
-app.use('/api/speedtest/download', heavyLimiter);
-app.use('/api/speedtest/upload', heavyLimiter);
+app.use('/api/speedtest/download', speedtestLimiter);
+app.use('/api/speedtest/upload', speedtestLimiter);
 
 // Load speedtest config configuration safely
 let config = {};

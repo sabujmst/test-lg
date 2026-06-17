@@ -115,7 +115,7 @@ export default function Speedtest({ clientIp, servers, onNavigateToLookingGlass 
     const testDuration = 6000; // 6 seconds duration
     const startTime = performance.now();
     let downloadSpeeds = [];
-    let runningAverage = 0;
+    let totalBytesDownloaded = 0;
 
     // Download 4MB chunks sequentially to measure speed over a steady 6 seconds
     while (performance.now() - startTime < testDuration) {
@@ -134,23 +134,15 @@ export default function Speedtest({ clientIp, servers, onNavigateToLookingGlass 
 
         // Wait to completely download the payload
         const blob = await response.blob();
-        const chunkDuration = (performance.now() - chunkStart) / 1000; // in seconds
+        totalBytesDownloaded += blob.size;
         
-        if (chunkDuration > 0) {
-          const instantSpeed = (blob.size * 8) / (chunkDuration * 1024 * 1024);
-          downloadSpeeds.push(instantSpeed);
+        const elapsedSeconds = (performance.now() - startTime) / 1000;
+        if (elapsedSeconds > 0) {
+          const currentRealSpeed = (totalBytesDownloaded * 8) / (elapsedSeconds * 1024 * 1024);
+          downloadSpeeds.push(currentRealSpeed);
 
-          // Smooth the speed using an Exponential Moving Average (EMA)
-          runningAverage = runningAverage === 0 ? instantSpeed : runningAverage * 0.7 + instantSpeed * 0.3;
-
-          // Cap local loopback speeds to a multi-gigabit threshold for dial scaling demo
-          let displaySpeed = runningAverage;
-          if (displaySpeed > 2800) {
-            displaySpeed = 2600 + Math.random() * 150;
-          }
-
-          setDownloadSpeed(parseFloat(displaySpeed.toFixed(2)));
-          setCurrentSpeed(displaySpeed);
+          setDownloadSpeed(parseFloat(currentRealSpeed.toFixed(2)));
+          setCurrentSpeed(currentRealSpeed);
         }
       } catch (e) {
         if (e.name === 'AbortError') break;
@@ -160,12 +152,10 @@ export default function Speedtest({ clientIp, servers, onNavigateToLookingGlass 
       }
     }
 
+    const elapsedTotal = (performance.now() - startTime) / 1000;
     let finalDownloadSpeed = 0;
-    if (downloadSpeeds.length > 0) {
-      finalDownloadSpeed = downloadSpeeds.reduce((a, b) => a + b, 0) / downloadSpeeds.length;
-    }
-    if (finalDownloadSpeed > 2800) {
-      finalDownloadSpeed = 2600 + Math.random() * 100;
+    if (elapsedTotal > 0 && totalBytesDownloaded > 0) {
+      finalDownloadSpeed = (totalBytesDownloaded * 8) / (elapsedTotal * 1024 * 1024);
     }
 
     setDownloadSpeed(parseFloat(finalDownloadSpeed.toFixed(2)));
@@ -184,7 +174,7 @@ export default function Speedtest({ clientIp, servers, onNavigateToLookingGlass 
     const testDuration = 6000; // 6 seconds duration
     const startTime = performance.now();
     let uploadSpeeds = [];
-    let runningAverage = 0;
+    let totalBytesUploaded = 0;
 
     // 1MB chunk to post sequentially
     const chunkSize = 1 * 1024 * 1024;
@@ -207,22 +197,14 @@ export default function Speedtest({ clientIp, servers, onNavigateToLookingGlass 
           xhr.send(chunk);
         });
 
-        const chunkDuration = (performance.now() - chunkStart) / 1000; // in seconds
-        if (chunkDuration > 0) {
-          const instantSpeed = (chunkSize * 8) / (chunkDuration * 1024 * 1024);
-          uploadSpeeds.push(instantSpeed);
+        totalBytesUploaded += chunkSize;
+        const elapsedSeconds = (performance.now() - startTime) / 1000;
+        if (elapsedSeconds > 0) {
+          const currentRealSpeed = (totalBytesUploaded * 8) / (elapsedSeconds * 1024 * 1024);
+          uploadSpeeds.push(currentRealSpeed);
 
-          // Smooth the speed using an Exponential Moving Average (EMA)
-          runningAverage = runningAverage === 0 ? instantSpeed : runningAverage * 0.7 + instantSpeed * 0.3;
-
-          // Cap local loopback speeds to a multi-gigabit threshold for dial scaling demo
-          let displaySpeed = runningAverage;
-          if (displaySpeed > 2000) {
-            displaySpeed = 1800 + Math.random() * 150;
-          }
-
-          setUploadSpeed(parseFloat(displaySpeed.toFixed(2)));
-          setCurrentSpeed(displaySpeed);
+          setUploadSpeed(parseFloat(currentRealSpeed.toFixed(2)));
+          setCurrentSpeed(currentRealSpeed);
         }
       } catch (e) {
         if (e.message === 'Aborted') break;
@@ -231,12 +213,10 @@ export default function Speedtest({ clientIp, servers, onNavigateToLookingGlass 
       }
     }
 
+    const elapsedTotal = (performance.now() - startTime) / 1000;
     let finalUploadSpeed = 0;
-    if (uploadSpeeds.length > 0) {
-      finalUploadSpeed = uploadSpeeds.reduce((a, b) => a + b, 0) / uploadSpeeds.length;
-    }
-    if (finalUploadSpeed > 2000) {
-      finalUploadSpeed = 1800 + Math.random() * 100;
+    if (elapsedTotal > 0 && totalBytesUploaded > 0) {
+      finalUploadSpeed = (totalBytesUploaded * 8) / (elapsedTotal * 1024 * 1024);
     }
 
     setUploadSpeed(parseFloat(finalUploadSpeed.toFixed(2)));
