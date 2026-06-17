@@ -51,9 +51,9 @@ export function executeDiagnostic(type, target, onData, onClose) {
     return () => {}; // Return empty cancel function
   }
 
-  const source = process.env.EXECUTION_SOURCE || 'local';
-
-  if (source === 'router') {
+  // BGP queries are always executed on the Arista EOS router.
+  // All other diagnostics (ping, traceroute, mtr, ping6) run locally on the backend server.
+  if (type === 'bgp') {
     return runOnRouter(type, sanitizedTarget, onData, onClose);
   } else {
     return runLocally(type, sanitizedTarget, onData, onClose);
